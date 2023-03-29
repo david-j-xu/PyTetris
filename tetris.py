@@ -1,9 +1,9 @@
 from enum import Enum
-from types import List
-import multiprocessing
+from typing import List
 from pydub import AudioSegment
 from pydub.playback import play
 import blessed
+from random import shuffle
 
 
 class TetrominoType(Enum):
@@ -13,25 +13,34 @@ class TetrominoType(Enum):
 
     """The straight line piece
     """
-    I = 1
+    I = "I"
     """The square piece
     """
-    O = 2
+    O = "O"
     """The T shaped piece
     """
-    T = 3
+    T = "T"
     """The J shaped piece
     """
-    J = 3
+    J = "J"
     """The L shaped piece
     """
-    L = 4
+    L = "L"
     """The S shaped piece
     """
-    S = 5
+    S = "S"
     """The Z shaped piece
     """
-    Z = 6
+    Z = "Z"
+    """None (blank)
+    """
+    X = "_"
+
+    """Returns the string representation of the enum
+    """
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class Tetromino:
@@ -45,25 +54,25 @@ class Tetromino:
         Args:
             type (TetrominoType): The type of tetromino
         """
-        pass
+        self.matrix = Tetromino.get_shape_of_tetromino(type)
 
-    def shape() -> List[List[bool]]:
+    def shape(self) -> List[List[TetrominoType]]:
         """Returns how to draw the tetromino, with booleans denoting if it should be drawn
 
         Returns:
-            List[List[bool]]: The shape
+            List[List[TetrominoType]]: The shape
         """
-        pass
+        return self.matrix
 
-    def rotate_left() -> None:
+    def rotate_left(self) -> None:
         """Rotates this tetromino left 90 degrees
         """
-        pass
+        self.matrix = list(zip(*self.matrix[::]))[::-1]
 
-    def rotate_right() -> None:
+    def rotate_right(self) -> None:
         """Rotates this tetromino right 90 degrees
         """
-        pass
+        self.matrix = list(zip(*self.matrix[::-1]))
 
     def __str__(self) -> str:
         """Dunder for to string
@@ -71,10 +80,20 @@ class Tetromino:
         Returns:
             str: the string representation
         """
-        pass
+        string: str = ""
+        for row in self.matrix:
+            for type in row:
+                string += str(type)
+            string += "\n"
+        return string
+
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Tetromino):
+            return str(self) == str(__value)
+        return False
 
     @staticmethod
-    def get_shape_of_tetromino(type: TetrominoType) -> List[List[bool]]:
+    def get_shape_of_tetromino(type: TetrominoType) -> List[List[TetrominoType]]:
         """Returns the shape of the given type
 
         Args:
@@ -84,57 +103,51 @@ class Tetromino:
             ValueError: On bad input type
 
         Returns:
-            List[List[bool]]: The shape
+            List[List[TetrominoType]]: The shape
         """
+        t = TetrominoType
         match type:
-            case TetrominoType.I:
+            case t.I:
                 return [
-                    [True, False, False, False],
-                    [True, False, False, False],
-                    [True, False, False, False],
-                    [True, False, False, False],
+                    [t.X, t.I, t.X, t.X],
+                    [t.X, t.I, t.X, t.X],
+                    [t.X, t.I, t.X, t.X],
+                    [t.X, t.I, t.X, t.X],
                 ]
-            case TetrominoType.O:
+            case t.O:
                 return [
-                    [True, True, False],
-                    [True, True, False],
-                    [False, False, False],
-                    [False, False, False],
+                    [t.O, t.O],
+                    [t.O, t.O],
                 ]
-            case TetrominoType.T:
+            case t.T:
                 return [
-                    [True, True, True],
-                    [False, True, False],
-                    [False, False, False],
-                    [False, False, False],
+                    [t.X, t.T, t.X],
+                    [t.T, t.T, t.T],
+                    [t.X, t.X, t.X],
                 ]
-            case TetrominoType.J:
+            case t.J:
                 return [
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
+                    [t.X, t.J, t.X],
+                    [t.X, t.J, t.X],
+                    [t.J, t.J, t.X],
                 ]
-            case TetrominoType.L:
+            case t.L:
                 return [
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
+                    [t.X, t.L, t.X],
+                    [t.X, t.L, t.X],
+                    [t.X, t.L, t.L],
                 ]
-            case TetrominoType.S:
+            case t.S:
                 return [
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
+                    [t.X, t.S, t.S],
+                    [t.S, t.S, t.X],
+                    [t.X, t.X, t.X],
                 ]
-            case TetrominoType.Z:
+            case t.Z:
                 return [
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
-                    [True, False, False],
+                    [t.Z, t.Z, t.X],
+                    [t.X, t.Z, t.Z],
+                    [t.X, t.X, t.X],
                 ]
             case _:
                 raise ValueError("No type given")
@@ -166,7 +179,10 @@ class Tetris:
         Returns:
             List[TetrominoType]: a bag of tetrominos
         """
-        pass
+        bag = [Tetromino(type)
+               for type in TetrominoType if type != TetrominoType.X]
+        shuffle(bag)
+        return bag
 
     def spawn_piece() -> None:
         """
