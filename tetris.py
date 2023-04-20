@@ -1,10 +1,7 @@
 from enum import Enum
 from typing import List
-from pydub import AudioSegment
-from pydub.playback import play
 from blessed import Terminal
 from random import shuffle
-import sys
 import time
 
 
@@ -203,16 +200,6 @@ class Tetromino:
                 ]
             case _:
                 raise ValueError("No type given")
-
-
-class GameState(Enum):
-    """
-    An enum for the states the game can be
-    """
-    TITLE_SCREEN = 1
-    GAME_OVER = 2
-    PAUSED = 3
-    GAME_RUNNING = 4
 
 
 class Tetris:
@@ -423,7 +410,8 @@ class Tetris:
                             self.curr_block_c -= 1
                         self.maintain_in_boundary()
                     case term.KEY_DOWN:
-                        self.rotate_curr_left()
+                        if (self.curr_block_r, self.curr_block_c) != self.find_curr_block_bottom_xy():
+                            self.curr_block_r += 1
                     case term.KEY_UP:
                         self.rotate_curr_right()
 
