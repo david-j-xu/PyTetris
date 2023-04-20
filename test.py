@@ -36,6 +36,15 @@ class TestTetromino(unittest.TestCase):
             rotate.rotate_left()
             self.assertEqual(rotate, Tetromino(type))
 
+    def test_leftmost_boundary(self):
+        self.assertEqual(1, Tetromino(TetrominoType.I).get_left_boundary())
+
+    def test_rightmost_boundary(self):
+        self.assertEqual(1, Tetromino(TetrominoType.I).get_right_boundary())
+
+    def test_bottom_boundary(self):
+        self.assertEqual(1, Tetromino(TetrominoType.T).get_bottom_boundary())
+
 
 if __name__ == '__main__':
     unittest.main()
